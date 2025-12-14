@@ -1,0 +1,103 @@
+TASK 11: Main Trading Loop
+===========================
+
+PRIORITY: High
+STATUS: Pending
+DEPENDENCIES: Task 05, Task 06, Task 08, Task 09
+
+DESCRIPTION:
+Integrate all components into a cohesive real-time trading system.
+
+SYSTEM ARCHITECTURE:
+```
+Kalshi Markets
+     ↓
+Logical Constraint Engine
+     ↓
+Probability Bounds (Hard)
+     ↓
+Directional Signal Generator
+     ↓
+Position Sizer (Fractional Kelly + Bounds)
+     ↓
+Execution (YES / NO)
+```
+
+MAIN LOOP (Async):
+```python
+async def main():
+    # Initialize components
+    client = KalshiClient(api_key)
+    constraint_engine = ConstraintEngine()
+    signal_generator = SignalGenerator()
+    position_sizer = PositionSizer(config)
+    execution_engine = ExecutionEngine(client)
+    risk_manager = RiskManager()
+    
+    # Start concurrent tasks
+    await asyncio.gather(
+        market_rebalancing_detector(),  # Every 2 seconds
+        constraint_violation_scanner(),  # Every 5 seconds
+        execution_monitor(),             # Continuous
+        risk_monitor(),                  # Every 30 seconds
+    )
+
+async def market_rebalancing_detector():
+    while True:
+        markets = await client.get_active_markets()
+        
+        for market in markets:
+            opportunity = detector.scan_market(market)
+            if opportunity and opportunity.profit_post_fee > 0.01:
+                signal = signal_generator.from_opportunity(opportunity)
+                size = position_sizer.calculate(signal)
+                
+                if risk_manager.approve(signal, size):
+                    await execution_engine.execute(signal, size)
+        
+        await asyncio.sleep(2)
+```
+
+TIMING:
+- Market rebalancing scan: Every 2 seconds
+- Constraint violation scan: Every 5 seconds
+- Combinatorial detection: Hourly (computationally expensive)
+- Risk check: Every 30 seconds
+- Position rebalancing: As needed
+
+EXPECTED VOLUME:
+- ~5-20 single-market rebalancing opps per day >1% post-fee
+- ~2-5 combinatorial opps per week >2%
+- Total extractable: ~$500-2,000/day for well-capitalized bot
+
+DELIVERABLES:
+
+1. TradingBot class:
+   - start() -> async
+   - stop() -> async
+   - pause() -> async
+   - resume() -> async
+   - get_status() -> BotStatus
+
+2. Configuration:
+   - Scan intervals
+   - Minimum edge thresholds
+   - Position limits
+   - Risk parameters
+
+3. Graceful shutdown:
+   - Cancel pending orders
+   - Log final state
+   - Save positions
+
+ACCEPTANCE CRITERIA:
+- [ ] All components integrated
+- [ ] Concurrent scanning working
+- [ ] Graceful startup/shutdown
+- [ ] Configuration externalized
+- [ ] Error recovery (reconnection, retry)
+
+NOTES:
+- Start with paper trading (log signals, don't execute)
+- Gradually enable execution with small sizes
+- Monitor for several days before increasing capital

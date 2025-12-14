@@ -1,0 +1,83 @@
+TASK 09: Risk Management System
+================================
+
+PRIORITY: Critical
+STATUS: Pending
+DEPENDENCIES: Task 07, Task 08
+
+DESCRIPTION:
+Implement comprehensive risk management for binary contract portfolios.
+Binary payoffs create nonlinear risk that standard equity intuition mishandles.
+
+TAIL RISK NEAR SETTLEMENT:
+- "Expiration cliff" - time-value compresses nonlinearly
+- Mid-market price discontinuities (0.55 → 0.95 or 0.05 overnight)
+- Bid-ask spread widening (2-3¢ → 10+¢ near settlement)
+- No graceful exit option
+
+MITIGATION:
+- Roll before expiration cliff (3-5 days before settlement)
+- Reduce position size by 50% for contracts <10 days to expiration
+- Separate event clusters by time (stagger settlements)
+
+DRAWDOWN CONTROL:
+| Drawdown | Action                                      |
+|----------|---------------------------------------------|
+| 10-15%   | Reduce position size by 50%; investigate    |
+| 20%      | Close 50% of positions; shift to defensive  |
+| 30%      | Close ALL positions; pause trading 1-2 weeks|
+
+CVaR (Conditional Value-at-Risk):
+CVaR_α = E[L | L > VaR_α]
+
+For binary portfolio:
+- VaR_0.05 might be -10%
+- CVaR_0.05 might be -25% (tail risk mean-variance ignores)
+
+WORST-CASE ANALYSIS:
+```
+For each contract cluster with correlation ρ:
+  P(all contracts lose) ≈ min(1, ρ^N)
+  Max portfolio loss = (sum of notional) × P(all lose)
+  Position size = min(Kelly, max_drawdown_limit / P(all lose))
+```
+
+DELIVERABLES:
+
+1. RiskManager class:
+   - calculate_portfolio_risk() -> RiskMetrics
+   - check_drawdown() -> DrawdownStatus
+   - enforce_limits() -> List[Action]
+   - calculate_cvar(alpha=0.05) -> float
+   - stress_test(correlation=1.0) -> float
+
+2. RiskMetrics model:
+   - current_drawdown: float
+   - max_drawdown: float
+   - var_95: float
+   - cvar_95: float
+   - correlation_matrix: np.ndarray
+   - cluster_exposures: Dict[str, float]
+
+3. Correlation monitoring:
+   - Rolling correlation estimates
+   - Ledoit-Wolf shrinkage
+   - Stress correlation: ρ_stress = min(1.0, ρ̄ + 2σ_ρ)
+
+4. Position limits:
+   - Max 50% allocation to any single correlation cluster
+   - Cap position to <10% of daily trading volume
+   - Exit all positions 5 days before settlement
+
+ACCEPTANCE CRITERIA:
+- [ ] Drawdown calculation correct
+- [ ] CVaR estimation working
+- [ ] Correlation monitoring active
+- [ ] Position limits enforced
+- [ ] Automatic risk reduction triggers
+- [ ] Stress testing capability
+
+NOTES:
+- Kalshi has no margin/leverage - position sizing IS risk control
+- Binary markets punish oversizing with existential severity
+- Operational risk often determines survival more than forecasting

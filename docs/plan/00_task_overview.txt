@@ -1,0 +1,92 @@
+KALSHI STATIC ARBITRAGE TRADING SYSTEM
+======================================
+
+PROJECT OVERVIEW:
+A trading system that exploits logical constraint violations in Kalshi
+prediction markets. The core insight: you're not predicting outcomes,
+you're trading incoherence.
+
+CORE IDEA:
+Use logical arbitrage constraints to define no-loss probability bounds,
+then take directional positions only when market prices violate those
+bounds by a margin larger than fees and execution risk.
+
+WHY THIS HAS REAL ALPHA:
+- Bounds are absolute, not statistical
+- Market cannot resolve without respecting them
+- Fees do not eliminate large logical gaps
+- Competition focuses on pure arb, not "almost arb"
+- Scales with confidence, not liquidity gaps
+
+TASK DEPENDENCY GRAPH:
+```
+01_project_setup
+     ↓
+     ├── 02_kalshi_api_client
+     │        ↓
+     └── 03_data_models
+              ↓
+         04_constraint_engine
+              ↓
+         ┌────┴────┐
+         ↓         ↓
+05_rebalancing  06_signals
+    detector    generator
+         │         │
+         └────┬────┘
+              ↓
+         07_position_sizing
+              ↓
+         08_execution_engine
+              ↓
+         09_risk_management
+              ↓
+         10_monitoring
+              ↓
+         11_main_trading_loop
+              ↓
+         12_combinatorial (advanced)
+              ↓
+         13_backtesting
+              ↓
+         14_testing
+```
+
+TASK LIST:
+01. Project Setup and Infrastructure
+02. Kalshi API Client
+03. Pydantic Data Models
+04. Logical Constraint Engine (CORE)
+05. Market Rebalancing Arbitrage Detector
+06. Directional Signal Generator
+07. Position Sizing (Fractional Kelly)
+08. Execution Engine
+09. Risk Management System
+10. Monitoring and Dashboard
+11. Main Trading Loop
+12. Combinatorial Arbitrage Detector (Advanced)
+13. Backtesting Framework
+14. Testing Suite
+
+EXPECTED RETURNS:
+- ~5-20 single-market rebalancing opps per day >1% post-fee
+- ~2-5 combinatorial opps per week >2%
+- Total extractable: ~$500-2,000/day for well-capitalized bot
+
+CAPITAL REQUIREMENTS:
+- Minimum: $25k-100k initial
+- Start with $500-1k per trade
+- No margin/leverage on Kalshi
+
+TECHNOLOGY STACK:
+- Python 3.11
+- Pydantic (data models)
+- httpx/requests (API)
+- asyncio (concurrency)
+- pandas/numpy (data)
+- pytest (testing)
+
+REFERENCES:
+- Kalshi API: https://docs.kalshi.com
+- Fee schedule: https://kalshi.com/docs/kalshi-fee-schedule.pdf
+- Research: Saguillo et al. (2025), Bürgi et al. (2025)

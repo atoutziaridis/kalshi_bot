@@ -1,0 +1,80 @@
+TASK 05: Market Rebalancing Arbitrage Detector
+==============================================
+
+PRIORITY: High
+STATUS: Pending
+DEPENDENCIES: Task 04
+
+DESCRIPTION:
+Detect intra-market arbitrage opportunities where sum of YES prices
+deviates from 1.0 (partition constraint violations).
+
+ALGORITHM:
+```
+Input: Market M with conditions {C_1, ..., C_n}
+       Current best-offer prices {p_1, ..., p_n}
+       Fee schedule F(p)
+
+1. Compute sum of best-ask YES prices:
+   sum_ask = Σ p_i^ask
+
+2. Compute sum of best-bid YES prices:
+   sum_bid = Σ p_i^bid
+
+3. Check Long Arbitrage (sum_ask < 1):
+   IF sum_ask < 1 THEN
+     profit_pre_fee = 1 - sum_ask
+     fees = Σ F(p_i^ask)
+     profit_post_fee = profit_pre_fee - fees
+     IF profit_post_fee > $0.01 THEN
+       FLAG as LONG opportunity
+
+4. Check Short Arbitrage (sum_bid > 1):
+   IF sum_bid > 1 THEN
+     profit_pre_fee = sum_bid - 1
+     fees = Σ F(p_i^bid)
+     profit_post_fee = profit_pre_fee - fees
+     IF profit_post_fee > $0.01 THEN
+       FLAG as SHORT opportunity
+
+5. Return: List of opportunities with (market_id, side, magnitude, liquidity)
+```
+
+FEE CALCULATION:
+Fee(p) = 0.07 × p × (1-p) per contract, rounded up
+
+Fee as % of cost:
+- 1¢ or 99¢: ~0.7%
+- 50¢: ~3.5%
+
+PROFITABILITY THRESHOLD:
+Post-fee break-even: |Σ p_i - 1| > 0.02 (2 percentage points)
+
+DELIVERABLES:
+1. RebalancingDetector class:
+   - scan_market(market) -> Optional[Opportunity]
+   - scan_all_markets() -> List[Opportunity]
+   - calculate_fees(prices) -> float
+   - estimate_profit(opportunity) -> float
+
+2. Opportunity model:
+   - market_id: str
+   - side: "long" | "short"
+   - profit_pre_fee: float
+   - profit_post_fee: float
+   - conditions: List[str]
+   - prices: List[float]
+   - liquidity: float
+   - timestamp: datetime
+
+ACCEPTANCE CRITERIA:
+- [ ] Correct detection of sum < 1 (long) opportunities
+- [ ] Correct detection of sum > 1 (short) opportunities
+- [ ] Fee calculation matches Kalshi schedule
+- [ ] Liquidity estimation from order book depth
+- [ ] Real-time scanning capability
+
+EMPIRICAL DATA:
+- Single-condition markets: 100% have long opportunities (bid-ask spread)
+- Multi-condition (NegRisk): ~42% have exploitable gaps post-fees
+- Median post-fee profit: ~$0.40 per $1 invested

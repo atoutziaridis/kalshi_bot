@@ -1,0 +1,79 @@
+TASK 10: Monitoring and Dashboard
+==================================
+
+PRIORITY: Medium
+STATUS: Pending
+DEPENDENCIES: Task 08, Task 09
+
+DESCRIPTION:
+Build real-time monitoring for the trading system with alerts
+and performance tracking.
+
+MONITORING COMPONENTS:
+
+1. Market Scanner Status:
+   - Markets being monitored
+   - Last scan timestamp
+   - Opportunities detected
+   - Opportunities executed
+
+2. Position Monitor:
+   - Current positions
+   - P&L per position
+   - Time to expiration
+   - Risk metrics per position
+
+3. Risk Dashboard:
+   - Current drawdown
+   - Cluster exposures
+   - Correlation changes
+   - CVaR estimates
+
+4. Execution Log:
+   - Orders placed
+   - Fill status
+   - Slippage analysis
+   - Fee tracking
+
+5. Alert System:
+   - Drawdown threshold breached
+   - Correlation spike detected
+   - Large opportunity found
+   - Execution failure
+
+DELIVERABLES:
+
+1. Monitor class:
+   - start_monitoring() -> async
+   - get_status() -> SystemStatus
+   - get_positions() -> List[Position]
+   - get_pnl() -> PnLReport
+   - get_risk_metrics() -> RiskMetrics
+
+2. AlertManager class:
+   - register_alert(condition, action)
+   - check_alerts() -> List[Alert]
+   - send_notification(alert)
+
+3. Logging:
+   - Structured logging (JSON format)
+   - Log rotation
+   - Separate logs for: trades, errors, signals, risk
+
+4. Performance tracking:
+   - Daily P&L
+   - Win rate
+   - Average edge captured
+   - Sharpe ratio (if applicable)
+
+ACCEPTANCE CRITERIA:
+- [ ] Real-time position tracking
+- [ ] P&L calculation correct
+- [ ] Alert system working
+- [ ] Logging comprehensive
+- [ ] Performance metrics accurate
+
+NOTES:
+- Keep monitoring lightweight (don't impact trading latency)
+- Store historical data for backtesting
+- Consider simple CLI dashboard initially (no web UI needed)

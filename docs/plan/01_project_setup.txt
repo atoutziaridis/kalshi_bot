@@ -1,0 +1,40 @@
+TASK 01: Project Setup and Infrastructure
+=========================================
+
+PRIORITY: High
+STATUS: Pending
+DEPENDENCIES: None
+
+DESCRIPTION:
+Set up the foundational project structure for the Kalshi trading system.
+
+DELIVERABLES:
+1. Python 3.11 virtual environment
+2. Core dependencies in pyproject.toml:
+   - pydantic (data models)
+   - requests / httpx (API calls)
+   - asyncio (concurrent operations)
+   - pandas (data manipulation)
+   - numpy (numerical operations)
+3. Project directory structure:
+   - src/kalshi_arb/
+     - api/          (Kalshi API client)
+     - models/       (Pydantic schemas)
+     - engine/       (Constraint engine)
+     - signals/      (Signal generation)
+     - execution/    (Order execution)
+     - risk/         (Position sizing)
+   - tests/
+   - config/
+
+ACCEPTANCE CRITERIA:
+- [ ] Virtual environment created with Python 3.11
+- [ ] All dependencies installed and importable
+- [ ] Basic project structure in place
+- [ ] Config file template for API keys
+- [ ] .env.example file for environment variables
+- [ ] Logging configuration set up
+
+NOTES:
+- No margin/leverage on Kalshi - position sizing is primary risk control
+- API key required for trading, not for market data

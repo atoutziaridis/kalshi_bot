@@ -1,0 +1,86 @@
+TASK 06: Directional Signal Generator
+======================================
+
+PRIORITY: High
+STATUS: Pending
+DEPENDENCIES: Task 04, Task 05
+
+DESCRIPTION:
+Generate directional trading signals when market prices violate
+logical probability bounds by more than fees + spread + safety margin.
+
+SIGNAL LOGIC:
+```
+For each market:
+  edge_up   = bound.lower - market_price
+  edge_down = market_price - bound.upper
+
+Trade only if:
+  max(edge_up, edge_down) > fee + spread + safety_margin
+
+Direction:
+  If edge_up > threshold → BUY YES
+  If edge_down > threshold → BUY NO
+```
+
+KEY INSIGHT:
+This is DIRECTIONAL, not pure arbitrage.
+- Bounds are absolute (market must respect them at resolution)
+- But you're taking a one-sided position
+- Profit comes from price convergence OR resolution
+
+EXAMPLE:
+Markets:
+- Trump wins: 0.42
+- GOP wins: 0.38
+
+Constraint: Trump ⊂ GOP → p(GOP) ≥ 0.42
+
+Observed:
+- Market p(GOP) = 0.38
+- Violation = 0.04
+- Fees+spread ≈ 0.015
+- Net edge ≈ 0.025
+
+Action:
+- BUY YES on GOP
+- Size via fractional Kelly
+- Hold until convergence or resolution
+
+DELIVERABLES:
+
+1. SignalGenerator class:
+   - generate_signals(markets, bounds) -> List[Signal]
+   - calculate_edge(market, bound) -> float
+   - apply_threshold(edge, costs) -> bool
+
+2. Signal model:
+   - ticker: str
+   - direction: "YES" | "NO"
+   - edge: float (raw)
+   - net_edge: float (after costs)
+   - confidence: float
+   - bound_source: str (constraint ID)
+   - timestamp: datetime
+
+3. Cost calculation:
+   - fee: from fee schedule
+   - spread: from order book
+   - safety_margin: configurable (default 0.5%)
+
+THRESHOLDS:
+- Minimum edge: 1% post-costs
+- Cross spread only if edge > 2× spread
+- Do not hold through final hour unless edge > 3%
+
+ACCEPTANCE CRITERIA:
+- [ ] Correct edge calculation from bounds
+- [ ] Cost estimation accurate
+- [ ] Threshold filtering working
+- [ ] Signal confidence scoring
+- [ ] Integration with constraint engine
+
+NOTES:
+- "Almost arbitrage" - logically one-sided but not risk-free
+- Competition focuses on pure arb; this exploits near-arb
+- Scales with confidence, not liquidity gaps

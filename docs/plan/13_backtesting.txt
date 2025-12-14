@@ -1,0 +1,83 @@
+TASK 13: Backtesting Framework
+==============================
+
+PRIORITY: Medium
+STATUS: Pending
+DEPENDENCIES: Task 04, Task 05, Task 06, Task 07
+
+DESCRIPTION:
+Build a backtesting system to validate strategies on historical data
+before deploying with real capital.
+
+DATA REQUIREMENTS:
+1. Historical market prices (OHLC from candlesticks endpoint)
+2. Historical order book snapshots (if available)
+3. Market resolution outcomes
+4. Fee schedule history
+
+BACKTESTING COMPONENTS:
+
+1. Data Loader:
+   - Load historical market data
+   - Load historical order books
+   - Load resolution outcomes
+   - Normalize to unified format
+
+2. Simulator:
+   - Replay market data chronologically
+   - Simulate order execution with slippage
+   - Track positions and P&L
+   - Apply realistic fees
+
+3. Strategy Evaluator:
+   - Run constraint engine on historical data
+   - Generate signals at each timestamp
+   - Execute via simulator
+   - Calculate performance metrics
+
+PERFORMANCE METRICS:
+- Total return
+- Win rate
+- Average edge captured
+- Maximum drawdown
+- Sharpe ratio (if applicable)
+- Profit factor
+- Number of trades
+
+VALIDATION APPROACH:
+1. In-sample training (60% of data)
+2. Out-of-sample validation (20%)
+3. Hold-out test (20%)
+4. Walk-forward analysis
+
+DELIVERABLES:
+
+1. Backtester class:
+   - load_data(start_date, end_date) -> DataFrame
+   - run_backtest(strategy) -> BacktestResult
+   - calculate_metrics(result) -> Metrics
+   - generate_report(result) -> Report
+
+2. Simulator class:
+   - simulate_order(order, market_state) -> Fill
+   - apply_slippage(price, size, liquidity) -> float
+   - calculate_fees(order) -> float
+
+3. Report generation:
+   - Equity curve
+   - Trade log
+   - Performance summary
+   - Risk metrics
+
+ACCEPTANCE CRITERIA:
+- [ ] Historical data loading working
+- [ ] Realistic execution simulation
+- [ ] Accurate fee calculation
+- [ ] Performance metrics correct
+- [ ] Report generation
+
+NOTES:
+- Kalshi provides candlesticks endpoint for OHLC data
+- Order book history may need to be collected going forward
+- Start with simple replay, add complexity as needed
+- Beware of look-ahead bias

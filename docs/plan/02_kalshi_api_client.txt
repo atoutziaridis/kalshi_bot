@@ -1,0 +1,49 @@
+TASK 02: Kalshi API Client
+==========================
+
+PRIORITY: High
+STATUS: Pending
+DEPENDENCIES: Task 01
+
+DESCRIPTION:
+Build a robust API client for Kalshi market data and trading operations.
+
+DELIVERABLES:
+1. KalshiClient class with methods:
+   - get_markets() - List all markets
+   - get_market(ticker) - Single market details
+   - get_orderbook(ticker) - Current bid/ask state
+   - get_series(series_ticker) - Series metadata
+   - get_candlesticks(ticker) - OHLC data
+
+2. Authentication handling for trading endpoints:
+   - login()
+   - place_order()
+   - cancel_order()
+   - get_positions()
+   - get_balance()
+
+3. Rate limiting and caching:
+   - Request throttling (respect API limits)
+   - Response caching (10-30s TTL)
+   - Automatic retry with backoff
+
+ENDPOINTS:
+- Base URL: https://api.elections.kalshi.com/trade-api/v2
+- GET /markets - List markets
+- GET /markets/{ticker} - Market details
+- GET /markets/{ticker}/orderbook - Order book
+- GET /series/{series_ticker} - Series info
+
+ACCEPTANCE CRITERIA:
+- [ ] All public endpoints implemented
+- [ ] Authentication flow working
+- [ ] Rate limiting prevents API bans
+- [ ] Caching reduces redundant calls
+- [ ] Error handling for network issues
+- [ ] Async support for concurrent requests
+
+NOTES:
+- Market data is public (no auth required)
+- Trading requires API key authentication
+- Order book only returns YES bids (NO derived as 100-price)

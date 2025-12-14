@@ -1,0 +1,91 @@
+TASK 12: Combinatorial Arbitrage Detector (Advanced)
+=====================================================
+
+PRIORITY: Medium
+STATUS: Pending
+DEPENDENCIES: Task 04, Task 11
+
+DESCRIPTION:
+Detect inter-market arbitrage opportunities from logical dependencies
+between different markets. More complex but higher profit per trade.
+
+MARKET DEPENDENCIES:
+Two markets M₁ and M₂ are dependent if their resolution outcomes
+constrain one another.
+
+EXAMPLES:
+1. Calendar inconsistency:
+   - Market A: "BTC > $250k by Dec 31, 2024?"
+   - Market B: "BTC > $250k by Dec 15, 2024?"
+   - If B=Yes → A must be Yes (temporal implication)
+
+2. Overlapping outcomes:
+   - Market A: "GOP wins 2024 presidency"
+   - Market B: "Trump wins 2024 presidency"
+   - If B=Yes → A must be Yes (subset implication)
+
+3. Range partition:
+   - Market A: "S&P 500 ends >3500"
+   - Market B: "S&P 500 ends 3400-3600"
+   - Market C: "S&P 500 ends <3400"
+   - Constraints between A, B, C
+
+DETECTION ALGORITHM:
+```
+Phase 1: Heuristic Reduction
+1. Filter by Topic (embed market questions, group by similarity)
+2. Filter by End Date (same expiration ±1 day)
+3. Filter by Liquidity (top-4 conditions by volume, OI > $10k)
+
+Result: 1,578 markets → 10-20 viable pairs
+
+Phase 2: Dependency Inference (LLM-based, future phase)
+4. For each candidate pair:
+   - Construct union of conditions
+   - Enumerate valid joint resolutions
+   - If |V| < |V₁| × |V₂| → Markets are dependent
+
+Phase 3: Dependency Extraction
+5. For dependent pairs:
+   - Identify dependent subsets S, S'
+   - Extract price sums
+   - Check: |sum_S - sum_S'| > 0.02
+
+Phase 4: Opportunity Ranking
+6. Sort by: profit × liquidity × (1/time_to_resolution)
+```
+
+ARBITRAGE CONDITION:
+If Σ p_c (for c ∈ S) < Σ p_c' (for c' ∈ S'):
+- Buy YES on S, sell YES on S' (or buy NO on S')
+- Profit = |sum_S - sum_S'| - fees
+
+DELIVERABLES:
+
+1. CombinatorialDetector class:
+   - find_candidate_pairs(markets) -> List[Pair]
+   - check_dependency(pair) -> bool
+   - calculate_arbitrage(pair) -> Optional[Opportunity]
+   - scan_all() -> List[Opportunity]
+
+2. Heuristic filters:
+   - Topic similarity (embedding-based)
+   - Date proximity
+   - Liquidity threshold
+
+3. Dependency graph:
+   - Store known dependencies
+   - Update as markets resolve
+   - Persist across sessions
+
+ACCEPTANCE CRITERIA:
+- [ ] Heuristic filtering reduces search space
+- [ ] Dependency detection working (manual rules first)
+- [ ] Arbitrage calculation correct
+- [ ] Integration with main loop (hourly scan)
+
+NOTES:
+- Checking all pairs is O(2^(m+n)) - must filter aggressively
+- LLM-based detection is Phase 2 (not MVP)
+- Start with manual dependency registration
+- Expected: 2-5 opportunities per week at >2% edge

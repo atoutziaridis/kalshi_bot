@@ -1,0 +1,80 @@
+TASK 07: Position Sizing (Fractional Kelly)
+===========================================
+
+PRIORITY: Critical
+STATUS: Pending
+DEPENDENCIES: Task 06
+
+DESCRIPTION:
+Implement arb-bounded Kelly sizing for binary contracts.
+Even perfect signals blow up without proper sizing.
+
+KELLY FORMULA (Standard):
+f* = (p × b - q) / b = (p(b+1) - 1) / b
+
+Where:
+- p = win probability
+- q = 1 - p
+- b = odds (net profit ratio)
+
+ARB-BOUNDED KELLY:
+```python
+effective_edge = edge - costs
+f = min(
+    0.25 * effective_edge / (1 - market_price),
+    max_position_per_market
+)
+```
+
+FRACTIONAL KELLY RECOMMENDATIONS:
+- 25% Kelly: Conservative, 15-20% drawdowns
+- 50% Kelly: Moderate, 25-35% drawdowns
+- >50% Kelly: Aggressive, rarely justified
+
+POSITION SIZING RULES:
+1. Never exceed 5-10% of account per constraint cluster
+2. If multiple constraints point same direction → additive confidence, NOT leverage
+3. Cap individual position: min(f_kelly, max_loss_tolerance / contract_notional)
+4. Reduce by 20% for each additional contract in same correlation cluster
+
+CORRELATION ADJUSTMENTS:
+- Segregate by underlying driver (macro, policy, market-linked)
+- Use Ledoit-Wolf shrinkage on correlation matrices
+- Stress-test at 100% correlation within clusters
+- If correlation increases >50% YoY, reduce sizes by 30%
+
+FEE/LIQUIDITY ADJUSTMENTS:
+```
+f_adjusted = f* × (1 - 2×(spread + slippage) - taker_fee)
+```
+
+Example: f* = 10%, spread = 1¢, slippage = 0.5¢, fee = 1.75%
+f_adjusted = 10% × 0.935 = 9.35%
+
+DELIVERABLES:
+
+1. PositionSizer class:
+   - calculate_kelly(probability, odds) -> float
+   - apply_fractional(kelly, fraction=0.25) -> float
+   - adjust_for_correlation(size, cluster_count) -> float
+   - adjust_for_costs(size, spread, fee) -> float
+   - final_size(signal, account_balance) -> float
+
+2. RiskLimits model:
+   - max_position_per_market: float (default 5%)
+   - max_cluster_allocation: float (default 10%)
+   - kelly_fraction: float (default 0.25)
+   - max_drawdown_trigger: float (default 0.15)
+
+ACCEPTANCE CRITERIA:
+- [ ] Kelly calculation correct
+- [ ] Fractional Kelly applied
+- [ ] Correlation adjustments working
+- [ ] Cost adjustments accurate
+- [ ] Position limits enforced
+- [ ] Integration with signal generator
+
+NOTES:
+- Binary payoffs create nonlinear risk
+- Standard equity intuition fails here
+- Position sizing IS the risk management (no leverage on Kalshi)

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Kalshi Trading Bot LaunchAgent for macOS -->
+    <!-- Install: cp this file to ~/Library/LaunchAgents/ -->
+    <!-- Load: launchctl load ~/Library/LaunchAgents/com.kalshi.tradingbot.plist -->
+    <!-- Unload: launchctl unload ~/Library/LaunchAgents/com.kalshi.tradingbot.plist -->
+    
+    <key>Label</key>
+    <string>com.kalshi.tradingbot</string>
+    
+    <key>ProgramArguments</key>
+    <array>
+        <!-- UPDATE THIS PATH to your Python interpreter -->
+        <string>/usr/local/bin/python3</string>
+        <string>-m</string>
+        <string>kalshi_arb.daemon</string>
+        <string>start</string>
+        <string>--paper</string>
+    </array>
+    
+    <key>WorkingDirectory</key>
+    <!-- UPDATE THIS PATH to your project directory -->
+    <string>/Users/alkist/CascadeProjects/windsurf-project-2</string>
+    
+    <key>EnvironmentVariables</key>
+    <dict>
+        <!-- Set your API keys here or use .env file -->
+        <key>PYTHONPATH</key>
+        <string>/Users/alkist/CascadeProjects/windsurf-project-2/src</string>
+    </dict>
+    
+    <key>RunAtLoad</key>
+    <true/>
+    
+    <key>KeepAlive</key>
+    <dict>
+        <key>SuccessfulExit</key>
+        <false/>
+    </dict>
+    
+    <key>ThrottleInterval</key>
+    <integer>30</integer>
+    
+    <key>StandardOutPath</key>
+    <string>/tmp/kalshi_bot.out.log</string>
+    
+    <key>StandardErrorPath</key>
+    <string>/tmp/kalshi_bot.err.log</string>
+</dict>
+</plist>

@@ -1,0 +1,86 @@
+TASK 14: Testing Suite
+======================
+
+PRIORITY: High
+STATUS: Pending
+DEPENDENCIES: All previous tasks
+
+DESCRIPTION:
+Comprehensive testing for all system components.
+
+TEST CATEGORIES:
+
+1. Unit Tests:
+   - Data models (Pydantic validation)
+   - Constraint engine (bound calculations)
+   - Fee calculations
+   - Kelly sizing
+   - Signal generation
+
+2. Integration Tests:
+   - API client with mock responses
+   - Constraint engine + signal generator
+   - Signal generator + position sizer
+   - Full pipeline (mock execution)
+
+3. End-to-End Tests:
+   - Paper trading mode
+   - Full system with test account
+   - Stress testing
+
+TEST CASES FOR CONSTRAINT ENGINE:
+
+1. Subset constraint:
+   - Trump wins (0.42) ⊂ GOP wins (0.38)
+   - Expected: Violation detected, bound(GOP).lower = 0.42
+
+2. Partition constraint:
+   - 3 outcomes summing to 0.95
+   - Expected: Long arbitrage opportunity
+
+3. Temporal constraint:
+   - Earlier expiration priced higher than later
+   - Expected: Violation detected
+
+TEST CASES FOR POSITION SIZING:
+
+1. Kelly calculation:
+   - p=0.60, odds=1:1 → f* = 20%
+   - With 25% fractional → 5%
+
+2. Correlation adjustment:
+   - 3 correlated positions → reduce each by 20%
+
+3. Cost adjustment:
+   - 2% spread + 1.75% fee → ~6% reduction
+
+DELIVERABLES:
+
+1. Test fixtures:
+   - Sample market data
+   - Sample order books
+   - Known constraint violations
+   - Expected signals
+
+2. Test utilities:
+   - Mock API client
+   - Test data generators
+   - Assertion helpers
+
+3. CI configuration:
+   - pytest setup
+   - Coverage reporting
+   - Pre-commit hooks
+
+ACCEPTANCE CRITERIA:
+- [ ] >80% code coverage
+- [ ] All critical paths tested
+- [ ] Edge cases covered
+- [ ] CI pipeline passing
+- [ ] No flaky tests
+
+NOTES:
+- Use pytest as test framework
+- Mock external API calls
+- Test with known violations from documentation
+- Include regression tests for bug fixes

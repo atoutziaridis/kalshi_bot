@@ -1,0 +1,59 @@
+TASK 03: Pydantic Data Models
+=============================
+
+PRIORITY: High
+STATUS: Pending
+DEPENDENCIES: Task 01
+
+DESCRIPTION:
+Define canonical Pydantic schemas for all market data structures.
+
+DELIVERABLES:
+
+1. Market Model:
+   - ticker: str (e.g., "KXHIGHNY-24JAN01-T60")
+   - series_ticker: str
+   - title: str
+   - category: str
+   - yes_title / no_title: str
+   - expiration_time: datetime
+   - settlement_time: datetime
+   - settlement_sources: List[SettlementSource]
+   - last_price_yes / last_price_no: float
+   - open_interest_yes / open_interest_no: int
+   - status: str ("open", "closed", "settled")
+
+2. OrderBook Model:
+   - yes_bids: List[tuple[int, int]]  # [price_cents, quantity]
+   - Properties: best_yes_bid, best_no_bid, mid_price_yes
+   - Methods: calculate_depth(depth_cents)
+
+3. Constraint Models:
+   - Constraint(type, lhs, rhs)
+   - ProbabilityBound(ticker, lower, upper, source)
+
+4. Signal Models:
+   - DirectionalSignal(ticker, direction, edge, confidence)
+
+5. Position Models:
+   - Position(ticker, side, quantity, entry_price)
+   - Order(ticker, side, price, quantity, order_type)
+
+TICKER PARSING:
+Pattern: {SERIES}-{YYMMDD}-{STRIKE_TYPE}{STRIKE_ID}
+Example: KXHIGHNY-24JAN01-T60
+  - Series: KXHIGHNY
+  - Expiration: 2024-01-01
+  - Strike Type: T (Time-based)
+  - Strike ID: 60
+
+ACCEPTANCE CRITERIA:
+- [ ] All models defined with proper types
+- [ ] Validation rules enforced
+- [ ] Ticker parsing utility function
+- [ ] Serialization/deserialization working
+- [ ] Unit tests for all models
+
+NOTES:
+- YES/NO are reciprocal: NO price = 100 - YES price
+- Prices in cents (1-99), convert to probability (0.01-0.99)

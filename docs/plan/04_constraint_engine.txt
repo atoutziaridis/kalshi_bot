@@ -1,0 +1,78 @@
+TASK 04: Logical Constraint Engine
+===================================
+
+PRIORITY: Critical
+STATUS: Pending
+DEPENDENCIES: Task 02, Task 03
+
+DESCRIPTION:
+Build the core constraint engine that derives probability bounds from
+logical relationships between markets. This is the heart of the system.
+
+CONSTRAINT TYPES (Start with 3):
+
+1. SUBSET CONSTRAINT (Highest Alpha):
+   If event A ⊂ event B, then p(A) ≤ p(B)
+   
+   Examples:
+   - "Trump wins" ⊂ "GOP wins"
+   - "BTC > 250k by Jan 15" ⊂ "BTC > 250k by Feb 1"
+   
+   Bounds:
+   - bound(B).lower = price(A)
+   - bound(A).upper = price(B)
+
+2. PARTITION CONSTRAINT (Exhaustive Outcomes):
+   For mutually exclusive outcomes: Σ p_i = 1
+   
+   Deviation defines implicit bounds:
+   - p_i ≤ 1 - Σ(j≠i) p_j
+   
+   Arbitrage if:
+   - Σ p_i < 1 → Buy all YES (long rebalancing)
+   - Σ p_i > 1 → Buy all NO (short rebalancing)
+
+3. TEMPORAL NESTING (Calendar):
+   Earlier event is subset of later: p(T1) ≤ p(T2)
+   Auto-derivable from expiration metadata.
+
+DELIVERABLES:
+
+1. ConstraintRegistry class:
+   - register_constraint(type, lhs_tickers, rhs_tickers)
+   - get_constraints_for_market(ticker)
+   - validate_constraint(constraint)
+
+2. BoundCalculator class:
+   - calculate_bounds(market, constraints) -> ProbabilityBound
+   - detect_violations(markets, constraints) -> List[Violation]
+
+3. Constraint Discovery (Phase 2):
+   - Auto-detect partition constraints from series
+   - Auto-detect temporal constraints from expiration dates
+   - Manual registration for subset constraints
+
+ALGORITHM:
+```
+For each market M:
+  1. Get all constraints involving M
+  2. For each constraint:
+     - If SUBSET and M is subset: upper = price(superset)
+     - If SUBSET and M is superset: lower = price(subset)
+     - If PARTITION: bounds from sum deviation
+     - If TEMPORAL: same as subset
+  3. Combine bounds (intersection)
+  4. Return tightest [lower, upper]
+```
+
+ACCEPTANCE CRITERIA:
+- [ ] All 3 constraint types implemented
+- [ ] Bound calculation correct for all types
+- [ ] Violation detection working
+- [ ] Constraint registry persists across sessions
+- [ ] Unit tests with known violations
+
+NOTES:
+- No LLMs in this phase - pure deterministic logic
+- Bounds are ABSOLUTE, not statistical
+- Market cannot resolve without respecting constraints

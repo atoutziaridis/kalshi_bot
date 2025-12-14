@@ -1,0 +1,80 @@
+TASK 08: Execution Engine
+=========================
+
+PRIORITY: High
+STATUS: Pending
+DEPENDENCIES: Task 02, Task 07
+
+DESCRIPTION:
+Execute trades based on signals with proper order management
+and execution risk mitigation.
+
+EXECUTION RULES:
+1. Always use LIMIT orders (never market)
+2. Cross spread only if edge > 2× spread
+3. Revalidate bounds RIGHT BEFORE execution
+4. Do not hold through final hour unless edge > 3%
+
+NON-ATOMIC EXECUTION RISK:
+Unlike DeFi (atomic swaps), Kalshi is quote-driven with order-book delays.
+After filling first leg, prices may shift.
+
+MITIGANTS:
+1. Use partial fills; rebalance in real-time
+2. Set limit orders to avoid slippage
+3. Time decay works in your favor (contract value drifts toward 0/1)
+
+EXECUTION FLOW:
+```
+1. Receive signal from SignalGenerator
+2. Validate signal is still valid (re-fetch prices)
+3. Calculate final position size
+4. Check account balance
+5. Place limit order at calculated price
+6. Monitor fill status
+7. If partial fill, adjust remaining order
+8. Log execution details
+```
+
+DELIVERABLES:
+
+1. ExecutionEngine class:
+   - execute_signal(signal, size) -> Order
+   - validate_signal(signal) -> bool
+   - place_order(ticker, side, price, quantity) -> OrderResult
+   - cancel_order(order_id) -> bool
+   - get_order_status(order_id) -> OrderStatus
+   - monitor_fills() -> async generator
+
+2. Order management:
+   - Limit order placement
+   - Order cancellation
+   - Partial fill handling
+   - Order timeout (cancel stale orders)
+
+3. Pre-execution checks:
+   - Price still valid (within threshold)
+   - Sufficient balance
+   - Position limits not exceeded
+   - Market still open
+
+PROFITABILITY TARGETS:
+| Arbitrage Type          | Min Profit | Min Liquidity | Max Hold |
+|-------------------------|------------|---------------|----------|
+| Market Rebalancing Long | 1% post-fee| $5k/condition | 5 min    |
+| Market Rebalancing Short| 1.5%       | $10k/condition| 5 min    |
+| Combinatorial           | 2%         | $10k all legs | 10 min   |
+| Calendar spread         | 1% pre-fee | $20k both legs| 30 min   |
+
+ACCEPTANCE CRITERIA:
+- [ ] Limit order placement working
+- [ ] Pre-execution validation
+- [ ] Partial fill handling
+- [ ] Order cancellation
+- [ ] Execution logging
+- [ ] Integration with position sizer
+
+NOTES:
+- Execution latency: <1 second (HTTP REST API sufficient)
+- Typical holding period: minutes to hours (24h markets)
+- Multi-day markets: execute within 1-2 trading blocks
